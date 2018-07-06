@@ -299,7 +299,7 @@ public class StatusBarUtil {
      * @param drawerLayout              DrawerLayout
      * @param drawerLayoutContentLayout DrawerLayout 的内容布局
      */
-    private static void setDrawerLayoutProperty(DrawerLayout drawerLayout, ViewGroup drawerLayoutContentLayout) {
+    protected static void setDrawerLayoutProperty(DrawerLayout drawerLayout, ViewGroup drawerLayoutContentLayout) {
         ViewGroup drawer = (ViewGroup) drawerLayout.getChildAt(1);
         drawerLayout.setFitsSystemWindows(false);
         drawerLayoutContentLayout.setFitsSystemWindows(false);
@@ -518,7 +518,11 @@ public class StatusBarUtil {
         setMIUIStatusBarDarkIcon(activity, true);
         setMeizuStatusBarDarkIcon(activity, true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            //activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            View decorView = activity.getWindow().getDecorView();
+            int flags = decorView.getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            decorView.setSystemUiVisibility(flags);
         }
     }
 
@@ -527,14 +531,18 @@ public class StatusBarUtil {
         setMIUIStatusBarDarkIcon(activity, false);
         setMeizuStatusBarDarkIcon(activity, false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            //activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            View decorView = activity.getWindow().getDecorView();
+            int flags = decorView.getSystemUiVisibility();
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            decorView.setSystemUiVisibility(flags);
         }
     }
 
     /**
      * 修改 MIUI V6  以上状态栏颜色
      */
-    private static void setMIUIStatusBarDarkIcon(@NonNull Activity activity, boolean darkIcon) {
+    protected static void setMIUIStatusBarDarkIcon(@NonNull Activity activity, boolean darkIcon) {
         Class<? extends Window> clazz = activity.getWindow().getClass();
         try {
             Class<?> layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
@@ -550,7 +558,7 @@ public class StatusBarUtil {
     /**
      * 修改魅族状态栏字体颜色 Flyme 4.0
      */
-    private static void setMeizuStatusBarDarkIcon(@NonNull Activity activity, boolean darkIcon) {
+    protected static void setMeizuStatusBarDarkIcon(@NonNull Activity activity, boolean darkIcon) {
         try {
             WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
             Field darkFlag = WindowManager.LayoutParams.class.getDeclaredField("MEIZU_FLAG_DARK_STATUS_BAR_ICON");
@@ -574,7 +582,7 @@ public class StatusBarUtil {
     ///////////////////////////////////////////////////////////////////////////////////
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private static void clearPreviousSetting(Activity activity) {
+    protected static void clearPreviousSetting(Activity activity) {
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         View fakeStatusBarView = decorView.findViewById(FAKE_STATUS_BAR_VIEW_ID);
         if (fakeStatusBarView != null) {
@@ -590,7 +598,7 @@ public class StatusBarUtil {
      * @param activity       需要设置的 activity
      * @param statusBarAlpha 透明值
      */
-    private static void addTranslucentView(Activity activity, @IntRange(from = 0, to = 255) int statusBarAlpha) {
+    protected static void addTranslucentView(Activity activity, @IntRange(from = 0, to = 255) int statusBarAlpha) {
         ViewGroup contentView = (ViewGroup) activity.findViewById(android.R.id.content);
         View fakeTranslucentView = contentView.findViewById(FAKE_TRANSLUCENT_VIEW_ID);
         if (fakeTranslucentView != null) {
@@ -610,7 +618,7 @@ public class StatusBarUtil {
      * @param color    状态栏颜色值
      * @return 状态栏矩形条
      */
-    private static View createStatusBarView(Activity activity, @ColorInt int color) {
+    protected static View createStatusBarView(Activity activity, @ColorInt int color) {
         return createStatusBarView(activity, color, 0);
     }
 
@@ -622,7 +630,7 @@ public class StatusBarUtil {
      * @param alpha    透明值
      * @return 状态栏矩形条
      */
-    private static View createStatusBarView(Activity activity, @ColorInt int color, int alpha) {
+    protected static View createStatusBarView(Activity activity, @ColorInt int color, int alpha) {
         // 绘制一个和状态栏一样高的矩形
         View statusBarView = new View(activity);
         LinearLayout.LayoutParams params =
@@ -636,7 +644,7 @@ public class StatusBarUtil {
     /**
      * 设置根布局参数
      */
-    private static void setRootView(Activity activity) {
+    protected static void setRootView(Activity activity) {
         ViewGroup parent = (ViewGroup) activity.findViewById(android.R.id.content);
         for (int i = 0, count = parent.getChildCount(); i < count; i++) {
             View childView = parent.getChildAt(i);
@@ -650,7 +658,7 @@ public class StatusBarUtil {
     /**
      * 设置透明
      */
-    private static void setTransparentForWindow(Activity activity) {
+    protected static void setTransparentForWindow(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             activity.getWindow().setStatusBarColor(Color.TRANSPARENT);
             activity.getWindow()
@@ -666,7 +674,7 @@ public class StatusBarUtil {
      * 使状态栏透明
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private static void transparentStatusBar(Activity activity) {
+    protected static void transparentStatusBar(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -683,7 +691,7 @@ public class StatusBarUtil {
      * @param alpha 透明值
      * @return 半透明 View
      */
-    private static View createTranslucentStatusBarView(Activity activity, int alpha) {
+    protected static View createTranslucentStatusBarView(Activity activity, int alpha) {
         // 绘制一个和状态栏一样高的矩形
         View statusBarView = new View(activity);
         LinearLayout.LayoutParams params =
@@ -700,7 +708,7 @@ public class StatusBarUtil {
      * @param context context
      * @return 状态栏高度
      */
-    private static int getStatusBarHeight(Context context) {
+    protected static int getStatusBarHeight(Context context) {
         // 获得状态栏高度
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         return context.getResources().getDimensionPixelSize(resourceId);
@@ -713,7 +721,7 @@ public class StatusBarUtil {
      * @param alpha alpha值
      * @return 最终的状态栏颜色
      */
-    private static int calculateStatusColor(@ColorInt int color, int alpha) {
+    protected static int calculateStatusColor(@ColorInt int color, int alpha) {
         if (alpha == 0) {
             return color;
         }
